@@ -3,6 +3,13 @@
 * Thiago Henrique 
 * Wender Enzo
 
+## Clonando o repositório
+* copie o link ssh ou https e rode o comando ```git clone <link>```
+* entre no diretório lexical-analyzer
+OU
+* baixe o zip e extraia para o local desejado
+* entre no diretório lexical-analyzer
+
 ## Referências
 ### Slides
 * Slide 8 Tabela de simbolos
@@ -14,11 +21,11 @@
 * Regex101 - https://regex101.com/
 ## Como rodar
 ### Requisitos
-* python 3
-* pip
+* python 3 instalado
+* pip instalado
 ### Instruções
-* Primeiro precisa instalar todas as dependências dentro do requeriments.txt com o comando ```pip install -r requeriments.txt ```
-* Segundo rodar o programa com o comando ```python lex.py```
+* Primeiro precisa instalar todas as dependências dentro do requeriments.txt rodando o comando ```pip install -r requeriments.txt ``` no terminal
+* Segundo rodar o programa com o comando ```python lex.py``` no terminal
 ## Explicação da implementação
 Inicialmente o programa vai pedir um **ARQUIVO TEXTO(TXT)** para ler e executar, caso seja enviado em branco, o programa ira usar o teste já preconfigurado no projeto.
 
