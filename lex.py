@@ -1,38 +1,3 @@
-# ----------------- Specs -----------------
-# owl2lex.py
-# Especificar um analisador léxico para a linguagem OWL2 no formato Manchester Syntax, considerando as seguintes especificações:
-# Palavras reservadas:
-# ● SOME, ALL, VALUE, MIN, MAX, EXACTLY, THAT
-# ● NOT
-# ● AND
-# ● OR
-# ● Class, EquivalentTo, Individuals, SubClassOf, DisjointClasses (todos sucedidos por “:”, que indicam tipos na linguagem OWL)
-# 
-# Identificadores de classes:
-# ● Nomes começando com letra maiúscula, p.ex.: Pizza.
-# ● Nomes compostos concatenados e com iniciais maiúsculas, p.ex.: VegetarianPizza.
-# ● Nomes compostos separados por underline, p.ex.: Margherita_Pizza.
-# 
-# Identificadores de propriedades:
-# ● Começando com “has”, seguidos de uma string simples ou composta, p.ex.: hasSpiciness, hasTopping, hasBase.
-# ● Começando com “is”, seguidos de qualquer coisa, e terminados com “Of”, p.ex.: isBaseOf, isToppingOf.
-# ● Nomes de propriedades geralmente começam com letra minúscula e são seguidos por qualquer outra sequência de letras, p.ex: ssn, hasPhone, numberOfPizzasPurchased.
-# 
-# Símbolos especiais:
-# ● Exemplos: [, ], {, }, (, ), >, <, e “,”
-# 
-# Nomes de indivíduos:
-# ● Começando com uma letra maiúscula, seguida de qualquer combinação de letras minúsculas e
-# terminando com um número. Por exemplo: Customer1, Waiter2, AmericanHotPizza1, etc.
-# 
-# Tipos de dados:
-# ● Identificação de tipos nativos das linguagens OWL, RDF, RDFs ou XML Schema, por exemplo: owl:
-# real, rdfs: domain, ou xsd: string.
-# 
-# Cardinalidades:
-# ● Representadas por números inteiros, p.ex.: hasTopping min 3
-# /---------------- Specs ----------------/
-
 import ply.lex as lex
 
 reserved = {
@@ -238,22 +203,9 @@ Class: Spiciness
 EquivalentTo:
 {Hot1 , Medium1 , Mild1}
 '''
-fileName = input("Insira o nome do arquivo desejado para abrir, caso deseje testar deixe vazio\n")
 
-if (len(fileName) > 0):
-  file = ''
-  with open(fileName, 'r')as dataFile:
-    file = dataFile.read()
+def lex(file) :
   lexer.input(file)
-
-  while True:
-    tok = lexer.token()
-    if not tok:
-      break
-    print(tok)
-else:
-  lexer.input(data)
-
   while True:
     tok = lexer.token()
     if not tok:
