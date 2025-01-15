@@ -2,28 +2,65 @@ import ply.yacc as yacc
 from lex import tokens
 
 # Regras da gramática
+def p_ontology(p):
+    'ontology : class_decl_list'
+    print("Ontologia analisada com sucesso")
+
+def p_class_decl_list(p):
+    '''class_decl_list : class_decl
+                       | class_decl_list class_decl'''
+    pass
+
 def p_class_decl(p):
     'class_decl : CLASS IDENTIFIER class_body'
     print(f"Classe definida: {p[2]}")
 
 def p_class_body(p):
-    '''class_body : subclassof_clause
+    '''class_body : subclass_of_clause
+                  | equivalent_to_clause
+                  | disjoint_classes_clause
+                  | individuals_clause
                   | empty'''
     pass
 
-def p_subclassof_clause(p):
-    'subclassof_clause : SUBCLASSOF list_of_properties'
+def p_subclass_of_clause(p):
+    'subclass_of_clause : SUBCLASSOF expressions'
     print("Subclasse definida")
 
-def p_list_of_properties(p):
-    '''list_of_properties : IDENTIFIER
-                          | list_of_properties COMMA IDENTIFIER'''
+def p_equivalent_to_clause(p):
+    'equivalent_to_clause : EQUIVALENTO expressions'
+    print("Classe equivalente definida")
+
+def p_disjoint_classes_clause(p):
+    'disjoint_classes_clause : DISJOINTCLASSES identifier_list'
+    print("Classes disjuntas definidas")
+
+def p_individuals_clause(p):
+    'individuals_clause : INDIVIDUALS identifier_list'
+    print(f"Indivíduos definidos: {p[2]}")
+    p[0] = p[2]
+
+def p_expressions(p):
+    '''expressions : expression
+                   | expressions AND expression'''
+    pass
+
+def p_expression(p):
+    '''expression : IDENTIFIER
+                  | IDENTIFIER SOME IDENTIFIER
+                  | IDENTIFIER OR IDENTIFIER
+                  | IDENTIFIER VALUE IDENTIFIER'''
+    pass
+
+
+def p_identifier_list(p):
+    '''identifier_list : IDENTIFIER
+                       | IDENTIFIER COMMA identifier_list'''
     if len(p) == 2:
-        print(f"Propriedade definida: {p[1]}")
         p[0] = [p[1]]
     else:
-        print(f"Propriedade definida: {p[3]}")
-        p[0] = p[1] + [p[3]]
+        p[0] = [p[1]] + p[3]
+
 
 def p_empty(p):
     'empty :'
@@ -35,6 +72,4 @@ def p_error(p):
     else:
         print("Erro de sintaxe: EOF inesperado")
 
-# Inicializar o parser
 parser = yacc.yacc()
-
