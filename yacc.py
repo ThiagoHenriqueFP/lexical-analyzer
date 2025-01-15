@@ -36,20 +36,20 @@ def p_disjoint_classes_clause(p):
     print("Classes disjuntas definidas")
 
 def p_individuals_clause(p):
-    'individuals_clause : INDIVIDUALS identifier_list'
+    'individuals_clause : INDIVIDUAL identifier_list'
     print(f"Indivíduos definidos: {p[2]}")
     p[0] = p[2]
 
 def p_expressions(p):
     '''expressions : expression
-                   | expressions AND expression'''
+                   | expressions and expression'''
     pass
 
 def p_expression(p):
     '''expression : IDENTIFIER
-                  | IDENTIFIER SOME IDENTIFIER
-                  | IDENTIFIER OR IDENTIFIER
-                  | IDENTIFIER VALUE IDENTIFIER'''
+                  | IDENTIFIER some IDENTIFIER
+                  | IDENTIFIER or IDENTIFIER
+                  | IDENTIFIER value IDENTIFIER'''
     pass
 
 

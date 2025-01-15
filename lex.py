@@ -31,13 +31,13 @@ tokens = [
 
 t_ignore = ' \t'
 
-def t_IDENTIFIER(t):
-    r'[a-zA-Z_][a-zA-Z0-9_]*'
-    return t
+# def t_IDENTIFIER(t):
+#     r'[a-zA-Z_][a-zA-Z0-9_]*'
+#     return t
 
-def t_COMMA(t):
-    r','
-    return t
+# def t_COMMA(t):
+#     r','
+#     return t
 
 
 def t_COMMENT(t):
