@@ -1,16 +1,17 @@
 import ply.lex as lex
 
 reserved = {
-  'some':'some',
-  'all':'all',
-  'value':'value',
-  'min':'min',
-  'max':'max',
-  'exactly':'exactly',
-  'that':'that',
-  'and':'and',
-  'not':'not',
-  'or':'or',
+  'SOME':'some',
+  'ALL':'all',
+  'VALUE':'value',
+  'MIN':'min',
+  'MAX':'max',
+  'EXACTLY':'exactly',
+  'THAT':'that',
+  'AND':'and',
+  'NOT':'not',
+  'OR':'or',
+  'ONLY': 'only',
   'Class:': 'CLASS',
   'EquivalentTo:': 'EQUIVALENTO',
   'SubClassOf:': 'SUBCLASSOF',
@@ -65,7 +66,7 @@ def t_INDIVIDUAL(t):
    return t
 
 def t_PROPERTY(t):
-  r'(has[a-zA-Z]+)|(is.+Of)|([a-z]+[A-Z][a-zA-Z]+)'
+  r'(has[a-zA-Z]+)|(is.+Of)|([a-z]+[A-Z][a-zA-Z]+)|([a-z]+[a-z])'
   if t.value.upper() in reserved:
     t.type = reserved[t.value.upper() ]
   return t
@@ -147,7 +148,7 @@ Class: AmericanaHotPizza
 SubClassOf:
 NamedPizza,
 hasTopping some JalapenoPepperTopping,
-hasTopping some MozzarellaTopping,
+hasTopping some MozzarellPersonaTopping,
 hasTopping some PepperoniTopping,
 hasTopping some TomatoTopping
 DisjointClasses:
@@ -213,11 +214,17 @@ Class: Spiciness
 EquivalentTo:
 {Hot1 , Medium1 , Mild1}
 '''
-
 def lex(file) :
+  with open("lex.lex", 'w') as out:
+    out.write('')
+    out.close()
+
   lexer.input(file)
   while True:
     tok = lexer.token()
     if not tok:
       break
     print(tok)
+    with open("lex.lex", 'a') as out:
+      out.writelines(str(tok) + '\n')
+      out.close()
