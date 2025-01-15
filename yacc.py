@@ -48,7 +48,7 @@ def p_expressions(p):
                     | expression and wrapped_expression
                     | individuals_clause
                     | subclass_properties
-                    | empty'''
+                    | equivalent_properties'''
     pass
 
 def p_wrapped_expression(p):
@@ -56,6 +56,20 @@ def p_wrapped_expression(p):
                             | SPECIAL expression SPECIAL and wrapped_expression
     '''
     pass
+
+def p_expression(p):
+    '''expression   : ID
+                    | ID or ID
+                    | PROPERTY some ID
+                    | PROPERTY or ID
+                    | PROPERTY value ID
+                    | PROPERTY some TYPE
+                    | PROPERTY or TYPE
+                    | PROPERTY value TYPE
+                    | cardinal_expression
+                    | mult_or_id'''    
+    pass
+
 
 def p_subclass_properties(p):
     '''subclass_properties  : subclass_props_list
@@ -69,28 +83,31 @@ def p_subclass_props_list(p):
     '''subclass_props_list  : PROPERTY some ID SPECIAL subclass_properties
                             | PROPERTY some TYPE SPECIAL subclass_properties
                             | PROPERTY only subclass_properties_wrapped subclass_properties
+                            | ID SPECIAL subclass_properties
     '''
 
 def p_subclass_properties_wrapped(p):
-    '''subclass_properties_wrapped  : SPECIAL ID or ID SPECIAL'''
-    pass
-
-
-def p_expression(p):
-    '''expression   : ID
-                    | PROPERTY some ID
-                    | PROPERTY or ID
-                    | PROPERTY value ID
-                    | PROPERTY some TYPE
-                    | PROPERTY or TYPE
-                    | PROPERTY value TYPE
-                    | cardinal_expression'''    
+    '''subclass_properties_wrapped  : SPECIAL expression SPECIAL'''
     pass
 
 def p_cardinal_expression(p):
     '''cardinal_expression  : PROPERTY min NUM TYPE
                             | PROPERTY max NUM TYPE
-                            | PROPERTY exactly NUM TYPE'''
+                            | PROPERTY exactly NUM TYPE
+                            | PROPERTY min NUM ID'''
+
+def p_mult_or_id(p):
+    '''mult_or_id   : ID
+                    | ID or mult_or_id
+    '''
+
+def p_equivalent_properties(p):
+    '''equivalent_properties    : cl equivalent_list cr'''
+
+def p_equivalent_list(p):
+    '''equivalent_list  : INDIVIDUAL SPECIAL equivalent_list
+                        | INDIVIDUAL
+    '''
 
 def p_id_list(p):
     '''id_list : ID

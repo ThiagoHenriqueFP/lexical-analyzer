@@ -12,10 +12,13 @@ reserved = {
   'NOT':'not',
   'OR':'or',
   'ONLY': 'only',
+  'CL': 'cl',
+  'CR': 'cr',
   'Class:': 'CLASS',
   'EquivalentTo:': 'EQUIVALENTO',
   'SubClassOf:': 'SUBCLASSOF',
-  'DisjointClasses:': 'DISJOINTCLASSES'
+  'DisjointClasses:': 'DISJOINTCLASSES',
+  'Individuals:': 'STARTINDIVIDUALS'
 }
 
 tokens = [
@@ -59,6 +62,10 @@ def t_NUM(t):
 
 def t_SPECIAL(t):
     r'\[|\]|\{|\}|\(|\)|>|<|,'
+    if t.value == '{':
+      t.type = reserved['CL']
+    if t.value == '}':
+      t.type = reserved['CR']
     return t
 
 def t_INDIVIDUAL(t):
@@ -76,6 +83,8 @@ def t_ID(t):
 
   if t.value.upper() in reserved:
     t.type = reserved[t.value.upper()]
+  elif t.value =="Individuals:":
+    t.type = reserved.get(t.value, 'STARTINDIVIDUALS')
   else:
     t.type = reserved.get(t.value, 'ID')
 
