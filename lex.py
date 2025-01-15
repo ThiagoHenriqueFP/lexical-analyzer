@@ -24,8 +24,6 @@ tokens = [
   'SPECIAL',
   'PROPERTY',
   'INDIVIDUAL',
-  'IDENTIFIER',
-  'COMMA',
 ] + list(reserved.values())
 
 

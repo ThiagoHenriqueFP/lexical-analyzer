@@ -12,7 +12,7 @@ def p_class_decl_list(p):
     pass
 
 def p_class_decl(p):
-    'class_decl : CLASS IDENTIFIER class_body'
+    'class_decl : CLASS ID class_body'
     print(f"Classe definida: {p[2]}")
 
 def p_class_body(p):
@@ -32,30 +32,35 @@ def p_equivalent_to_clause(p):
     print("Classe equivalente definida")
 
 def p_disjoint_classes_clause(p):
-    'disjoint_classes_clause : DISJOINTCLASSES identifier_list'
+    'disjoint_classes_clause : DISJOINTCLASSES id_list'
     print("Classes disjuntas definidas")
 
 def p_individuals_clause(p):
-    'individuals_clause : INDIVIDUAL identifier_list'
+    'individuals_clause : INDIVIDUAL id_list'
     print(f"Indivíduos definidos: {p[2]}")
     p[0] = p[2]
 
 def p_expressions(p):
     '''expressions : expression
-                   | expressions and expression'''
+                   | SPECIAL and expression and SPECIAL'''
     pass
+
+def p_wrapped_expression(p):
+    'wrapped_expression : SPECIAL and expression and SPECIAL'
+    print(f"wrapped: {p[1]} in : {p[0]} {p[2]}")
+    pass
+
 
 def p_expression(p):
-    '''expression : IDENTIFIER
-                  | IDENTIFIER some IDENTIFIER
-                  | IDENTIFIER or IDENTIFIER
-                  | IDENTIFIER value IDENTIFIER'''
+    '''expression : ID
+                  | ID some ID
+                  | ID or ID
+                  | ID value ID'''
     pass
 
-
-def p_identifier_list(p):
-    '''identifier_list : IDENTIFIER
-                       | IDENTIFIER COMMA identifier_list'''
+def p_id_list(p):
+    '''id_list : ID
+               | ID SPECIAL id_list'''
     if len(p) == 2:
         p[0] = [p[1]]
     else:

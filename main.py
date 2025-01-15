@@ -9,7 +9,7 @@ def main():
     with open(filename, 'r')as dataFile:
       file = dataFile.read()
 
-  lex(file)
+  # lex(file)
   result = parser.parse(lexer=lexer, input=file)
   print(result)
 
