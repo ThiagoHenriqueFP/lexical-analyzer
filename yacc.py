@@ -13,34 +13,35 @@ def p_class_decl_list(p):
 
 def p_class_decl(p):
     'class_decl : CLASS ID class_body'
-    print(f"Classe definida: {p[2]}")
+    # print(f"Classe definida: {p[2]}")
 
 def p_class_body(p):
-    '''class_body : subclass_of_clause individuals_clause
-                  | equivalent_to_clause individuals_clause
-                  | disjoint_classes_clause individuals_clause
-                  | empty'''
+    '''class_body   : subclass_of_clause 
+                    | subclass_of_clause individuals_clause
+                    | equivalent_to_clause individuals_clause
+                    | disjoint_classes_clause individuals_clause
+                    | empty'''
     pass
 
 def p_subclass_of_clause(p):
     'subclass_of_clause : SUBCLASSOF expressions'
-    print("Subclasse definida")
+    # print("Subclasse definida")
 
 def p_equivalent_to_clause(p):
     'equivalent_to_clause : EQUIVALENTO expressions'
-    print("Classe equivalente definida")
+    # print("Classe equivalente definida")
 
 def p_disjoint_classes_clause(p):
     'disjoint_classes_clause : DISJOINTCLASSES id_list'
-    print("Classes disjuntas definidas")
+    # print("Classes disjuntas definidas")
 
 def p_individuals_clause(p):
-    'individuals_clause : ID individual_list'
+    'individuals_clause : STARTINDIVIDUALS individual_list'
 
 def p_individual_list(p):
     '''individual_list  : INDIVIDUAL
                         | INDIVIDUAL SPECIAL individual_list'''
-    print(f"Indivíduos definidos: {p[1]}")
+    # print(f"Indivíduos definidos: {p[1]}")
     pass
 
 def p_expressions(p):
@@ -48,7 +49,8 @@ def p_expressions(p):
                     | expression and wrapped_expression
                     | individuals_clause
                     | subclass_properties
-                    | equivalent_properties'''
+                    | equivalent_properties
+                    | disjoint_classes_clause'''
     pass
 
 def p_wrapped_expression(p):
@@ -59,11 +61,13 @@ def p_wrapped_expression(p):
 
 def p_expression(p):
     '''expression   : ID
-                    | ID or ID
+                    | ID SPECIAL expression
                     | PROPERTY some ID
                     | PROPERTY or ID
                     | PROPERTY value ID
+                    | PROPERTY value INDIVIDUAL
                     | PROPERTY some TYPE
+                    | PROPERTY some wrapped_expression
                     | PROPERTY or TYPE
                     | PROPERTY value TYPE
                     | cardinal_expression
@@ -72,19 +76,11 @@ def p_expression(p):
 
 
 def p_subclass_properties(p):
-    '''subclass_properties  : subclass_props_list
-                            | PROPERTY some ID
-                            | PROPERTY some TYPE
-                            | empty
-                            '''
-    pass
-
-def p_subclass_props_list(p):
-    '''subclass_props_list  : PROPERTY some ID SPECIAL subclass_properties
+    '''subclass_properties  : PROPERTY some ID SPECIAL subclass_properties
                             | PROPERTY some TYPE SPECIAL subclass_properties
-                            | PROPERTY only subclass_properties_wrapped subclass_properties
+                            | PROPERTY only subclass_properties_wrapped
                             | ID SPECIAL subclass_properties
-    '''
+                            '''
 
 def p_subclass_properties_wrapped(p):
     '''subclass_properties_wrapped  : SPECIAL expression SPECIAL'''
@@ -97,8 +93,8 @@ def p_cardinal_expression(p):
                             | PROPERTY min NUM ID'''
 
 def p_mult_or_id(p):
-    '''mult_or_id   : ID
-                    | ID or mult_or_id
+    '''mult_or_id   : ID or mult_or_id
+                    | empty
     '''
 
 def p_equivalent_properties(p):
