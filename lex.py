@@ -224,7 +224,7 @@ EquivalentTo:
 {Hot1 , Medium1 , Mild1}
 '''
 def lex(file) :
-  with open("lex.lex", 'w') as out:
+  with open("lex", 'w') as out:
     out.write('')
     out.close()
 
