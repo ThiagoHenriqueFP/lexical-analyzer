@@ -13,7 +13,7 @@ def p_class_decl_list(p):
 
 def p_class_decl(p):
     'class_decl : CLASS ID class_body'
-    # print(f"Classe definida: {p[2]}")
+    print(f"Classe definida: {p[2]}")
 
 def p_class_body(p):
     '''class_body   : subclass_of_clause
@@ -28,15 +28,15 @@ def p_class_body(p):
 
 def p_subclass_of_clause(p):
     'subclass_of_clause : SUBCLASSOF subclass_properties'
-    # print("Subclasse definida")
+    print("Subclasse definida")
 
 def p_equivalent_to_clause(p):
     'equivalent_to_clause : EQUIVALENTO equivalent_properties'
-    # print("Classe equivalente definida")
+    print("Classe equivalente definida")
 
 def p_disjoint_classes_clause(p):
     'disjoint_classes_clause : DISJOINTCLASSES id_list'
-    # print("Classes disjuntas definidas")
+    print("Classes disjuntas definidas")
 
 def p_individuals_clause(p):
     'individuals_clause : STARTINDIVIDUALS individual_list'
@@ -44,7 +44,7 @@ def p_individuals_clause(p):
 def p_individual_list(p):
     '''individual_list  : INDIVIDUAL
                         | INDIVIDUAL SPECIAL individual_list'''
-    # print(f"Indivíduos definidos: {p[1]}")
+    print(f"Indivíduos definidos: {p[1]}")
     pass
 
 def p_wrapped_expression(p):
@@ -65,10 +65,14 @@ def p_expression(p):
                     | PROPERTY or TYPE
                     | PROPERTY value TYPE
                     | cardinal_expression
-                    | mult_or_id'''    
+                    | mult_or_id
+                    | type_with_num_stt'''    
     pass
 
-
+def p_type_with_num_stt(p):
+    '''type_with_num_stt    : PROPERTY some TYPE SPECIAL NUM SPECIAL
+                            | PROPERTY some TYPE SPECIAL SPECIAL NUM SPECIAL
+    '''
 def p_subclass_properties(p):
     '''subclass_properties  : PROPERTY some ID
                             | PROPERTY some TYPE
