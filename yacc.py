@@ -1,42 +1,45 @@
 import ply.yacc as yacc
 from lex import tokens
 
+closure_axiom_tuple = []
+current_class = '?'
+
 # Regras da gramática
 def p_ontology(p):
     'ontology : class_decl_list'
-    print("Ontologia analisada com sucesso")
 
 def p_class_decl_list(p):
     '''class_decl_list : class_decl
                        | class_decl_list class_decl'''
-    pass
 
 def p_class_decl(p):
     'class_decl : CLASS ID class_body'
-    print(f"Classe definida: {p[2]}")
+    current_class = p[2]
 
 def p_class_body(p):
-    '''class_body   : subclass_of_clause
-                    | subclass_of_clause individuals_clause
-                    | subclass_of_clause disjoint_classes_clause individuals_clause
-                    | equivalent_to_clause
-                    | equivalent_to_clause individuals_clause
-                    | disjoint_classes_clause 
-                    | disjoint_classes_clause individuals_clause
-                    | empty'''
-    pass
+    '''class_body   : primitive_class
+                    | defined_class
+                    | error_classes
+                    | empty
+    '''
 
-def p_subclass_of_clause(p):
-    'subclass_of_clause : SUBCLASSOF subclass_properties'
-    print("Subclasse definida")
+def p_error_classes(p):
+    '''error_classes    : only_disjoint'''
 
-def p_equivalent_to_clause(p):
-    'equivalent_to_clause : EQUIVALENTO equivalent_properties'
-    print("Classe equivalente definida")
+def p_only_disjoint(p):
+    '''only_disjoint    : disjoint_clause'''
+    print("A class cannot be declared only with a disjoint clause")
+    raise SyntaxError
 
-def p_disjoint_classes_clause(p):
-    'disjoint_classes_clause : DISJOINTCLASSES id_list'
-    print("Classes disjuntas definidas")
+
+def p_subclassof_clause(p):
+    'subclassof_clause : SUBCLASSOF subclass_properties'
+
+def p_equivalento_clause(p):
+    'equivalento_clause : EQUIVALENTO equivalent_properties'
+
+def p_disjoint_clause(p):
+    'disjoint_clause : DISJOINTCLASSES id_list'
 
 def p_individuals_clause(p):
     'individuals_clause : STARTINDIVIDUALS individual_list'
@@ -44,8 +47,21 @@ def p_individuals_clause(p):
 def p_individual_list(p):
     '''individual_list  : INDIVIDUAL
                         | INDIVIDUAL SPECIAL individual_list'''
-    print(f"Indivíduos definidos: {p[1]}")
     pass
+
+def p_primitive_class(p):
+    '''primitive_class  : subclassof_clause
+                        | subclassof_clause disjoint_clause
+                        | subclassof_clause disjoint_clause individuals_clause
+                        | subclassof_clause individuals_clause
+    '''
+    print(f"Classe primitiva declarada")
+
+def p_defined_class(p):
+    '''defined_class    : equivalento_clause
+                        | equivalento_clause individuals_clause
+    '''
+    print("Classe definida declarada")
 
 def p_wrapped_expression(p):
     '''wrapped_expression   : SPECIAL expression SPECIAL
@@ -60,7 +76,6 @@ def p_expression(p):
                     | PROPERTY or ID
                     | PROPERTY value ID
                     | PROPERTY value INDIVIDUAL
-                    | PROPERTY some TYPE
                     | PROPERTY some wrapped_expression
                     | PROPERTY or TYPE
                     | PROPERTY value TYPE
@@ -70,9 +85,12 @@ def p_expression(p):
     pass
 
 def p_type_with_num_stt(p):
-    '''type_with_num_stt    : PROPERTY some TYPE SPECIAL NUM SPECIAL
-                            | PROPERTY some TYPE SPECIAL SPECIAL NUM SPECIAL
+    '''type_with_num_stt    : PROPERTY some TYPE SPECIAL SPECIAL NUM SPECIAL
+                            | PROPERTY some TYPE SPECIAL SPECIAL SPECIAL NUM SPECIAL
     '''
+    if len(p) == 8:
+         print(f"Property '{p[1]}' with type {p[3]} {p[4]} {p[5]}{p[6]} {p[7]}")
+    else: print(f"Property '{p[1]}' with type {p[3]} {p[4]} {p[5]}{p[6]}{p[7]} {p[8]}")
 def p_subclass_properties(p):
     '''subclass_properties  : PROPERTY some ID
                             | PROPERTY some TYPE
@@ -80,9 +98,32 @@ def p_subclass_properties(p):
                             | PROPERTY some TYPE SPECIAL subclass_properties
                             | PROPERTY only subclass_properties_wrapped
                             | ID and SPECIAL expression SPECIAL
-                            | ID SPECIAL subclass_properties
+                            | ID SPECIAL closure_axiom
                             | ID
                             '''
+    if len(closure_axiom_tuple) != 0:
+        print(f"These IDs arent declared as properties in the closure axiom: {closure_axiom_tuple}")
+        raise SyntaxError
+    print("Class with closure axiom successfuly defined")
+    
+def p_closure_axiom(p):
+    '''closure_axiom    : PROPERTY some ID SPECIAL closure_axiom
+                        | PROPERTY some ID SPECIAL
+                        | PROPERTY only SPECIAL closure_axiom_check SPECIAL
+    '''
+    if p[3] != '(':
+        if p[3] in closure_axiom_tuple:
+            closure_axiom_tuple.remove(p[3])
+        else: 
+            print(f"ID: {p[3]} not declared as the property, but declared in the closure")
+            raise SyntaxError
+
+def p_closure_axiom_check(p):
+    '''closure_axiom_check  : ID 
+                            | ID or closure_axiom_check
+    '''
+
+    closure_axiom_tuple.insert(0, p[1])
 
 def p_subclass_properties_wrapped(p):
     '''subclass_properties_wrapped  : SPECIAL mult_or_id SPECIAL'''
@@ -106,20 +147,29 @@ def p_mult_and_equi(p):
     '''
 
 def p_equivalent_properties(p):
-    '''equivalent_properties    : cl equivalent_list cr
+    '''equivalent_properties    : enumerated_class
+                                | covered_class
                                 | ID and SPECIAL equi_excludent_props SPECIAL
                                 | ID mult_and_equi
                                 | ID and SPECIAL expression SPECIAL
     '''
 
+def p_enumerated_class(p):
+    '''enumerated_class : equivalent_list'''
+    print("Enumerated class defined")
+
+def p_covered_class(p):
+    '''covered_class    : mult_or_id'''
+    print("Covered class defined")
+
 def p_equi_excludent_props(p):
     '''equi_excludent_props : PROPERTY only SPECIAL mult_or_id SPECIAL'''
 
 def p_equivalent_list(p):
-    '''equivalent_list  : INDIVIDUAL SPECIAL equivalent_list
+    '''equivalent_list  : cl equivalent_list cr
+                        | INDIVIDUAL SPECIAL equivalent_list
                         | INDIVIDUAL
     '''
-
 def p_id_list(p):
     '''id_list : ID
                | ID SPECIAL id_list'''
@@ -135,7 +185,7 @@ def p_empty(p):
 
 def p_error(p):
     if p:
-        print(f"Erro de sintaxe na linha {p.lineno}: {p.value}")
+        print(f"Erro de sintaxe na linha: {p.lineno}: {p.value}")
     else:
         print("Erro de sintaxe: EOF inesperado")
 
