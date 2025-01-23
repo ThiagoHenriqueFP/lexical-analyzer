@@ -53,14 +53,13 @@ and (hasCaloricContent some xsd:integer [< 400])
 Class: NamedPizza
 SubClassOf:
 Pizza
-
 Class: AmericanaHotPizza
 SubClassOf:
 NamedPizza,
 hasTopping some JalapenoPepperTopping,
 hasTopping some MozzarellaTopping,
 hasTopping some PepperoniTopping,
-hasTopping some TomatoTopping,
+hasTopping some TomatoTopping
 DisjointClasses:
 AmericanaPizza, MargheritaPizza, SohoPizza
 Individuals:
@@ -68,13 +67,12 @@ AmericanaHotPizza1,
 AmericanaHotPizza2,
 AmericanaHotPizza3,
 ChicagoAmericanaHotPizza1
-
 Class: AmericanaPizza
 SubClassOf:
 NamedPizza,
 hasTopping some MozzarellaTopping,
 hasTopping some PepperoniTopping,
-hasTopping some TomatoTopping,
+hasTopping some TomatoTopping
 DisjointClasses:
 AmericanaHotPizza, MargheritaPizza, SohoPizza
 Individuals:
@@ -111,8 +109,9 @@ EquivalentTo:
 Pizza
 and (hasTopping some (hasSpiciness value Hot1))
 Class: VegetarianPizza
+:
 Pizza
-and (hasTopping only
+and ((hasTopping only
 (CheeseTopping or VegetableTopping))
 Class: PizzaBase
 DisjointClasses:

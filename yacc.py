@@ -1,8 +1,39 @@
 import ply.yacc as yacc
+import re
 from lex import tokens
 
+errors = []
+warnings = []
+class_type = []
+class_modifiers = []
 closure_axiom_tuple = []
-current_class = '?'
+
+def clear():
+    errors.clear()
+    warnings.clear()
+    class_type.clear()
+    class_modifiers.clear()
+    closure_axiom_tuple.clear()
+
+def print_class(current):
+    is_success = "was successfuly analysed" if len(errors) == 0 else "has errors encoutntered after analyse"
+    class_type_str = ''
+    for ct in class_type:
+        class_type_str += f"{ct} "
+    print(f"Class: {current} {class_type_str}{is_success}")
+    for cm in class_modifiers:
+        print("\t",cm)
+    if len(errors) > 0:
+        print("ERRORS")
+        for e in errors:
+            print('\033[91m'+"X ", e)
+
+    if len(warnings) > 0:
+        print("WARNINGS")
+        for e in warnings:
+            print('\033[93m',"! ", e)
+    print('\033[0m', '----------------------\n')
+    clear()
 
 # Regras da gramática
 def p_ontology(p):
@@ -11,10 +42,10 @@ def p_ontology(p):
 def p_class_decl_list(p):
     '''class_decl_list : class_decl
                        | class_decl_list class_decl'''
-
+    
 def p_class_decl(p):
     'class_decl : CLASS ID class_body'
-    current_class = p[2]
+    print_class(p[2])
 
 def p_class_body(p):
     '''class_body   : primitive_class
@@ -24,13 +55,34 @@ def p_class_body(p):
     '''
 
 def p_error_classes(p):
-    '''error_classes    : only_disjoint'''
+    '''error_classes    : only_disjoint
+                        | only_individuals
+                        | out_of_order
+                        | missing_directives
+    '''
+
+def p_missing_directives(p):
+    '''missing_directives   : subclass_properties
+                            | equivalent_properties
+    '''
+
+    errors.append("cannot instance a class without SubClassOf or EquivalentTo directives")
 
 def p_only_disjoint(p):
     '''only_disjoint    : disjoint_clause'''
-    print("A class cannot be declared only with a disjoint clause")
-    raise SyntaxError
+    errors.append("A class cannot be declared only with a disjoint clause")
 
+def p_only_individuals(p):
+    '''only_individuals : individuals_clause'''
+    errors.append("A class cannot be declared only with a individuals list")
+
+def p_out_of_order(p):
+    '''out_of_order : subclassof_clause equivalento_clause
+                    | subclassof_clause equivalento_clause disjoint_clause
+                    | subclassof_clause equivalento_clause disjoint_clause individuals_clause
+                    | subclassof_clause equivalento_clause individuals_clause
+    '''
+    errors.append("Class defined out of the order")
 
 def p_subclassof_clause(p):
     'subclassof_clause : SUBCLASSOF subclass_properties'
@@ -47,7 +99,6 @@ def p_individuals_clause(p):
 def p_individual_list(p):
     '''individual_list  : INDIVIDUAL
                         | INDIVIDUAL SPECIAL individual_list'''
-    pass
 
 def p_primitive_class(p):
     '''primitive_class  : subclassof_clause
@@ -55,13 +106,18 @@ def p_primitive_class(p):
                         | subclassof_clause disjoint_clause individuals_clause
                         | subclassof_clause individuals_clause
     '''
-    print(f"Classe primitiva declarada")
+    class_type.insert(0, f"declarated as primitive class")
 
 def p_defined_class(p):
     '''defined_class    : equivalento_clause
                         | equivalento_clause individuals_clause
+                        | equivalento_clause disjoint_clause 
+                        | equivalento_clause disjoint_clause individuals_clause
+                        | equivalento_clause subclassof_clause individuals_clause
+                        | equivalento_clause subclassof_clause disjoint_clause 
+                        | equivalento_clause subclassof_clause disjoint_clause individuals_clause
     '''
-    print("Classe definida declarada")
+    class_type.insert(0, "declarated as defined class")
 
 def p_wrapped_expression(p):
     '''wrapped_expression   : SPECIAL expression SPECIAL
@@ -85,38 +141,50 @@ def p_expression(p):
     pass
 
 def p_type_with_num_stt(p):
-    '''type_with_num_stt    : PROPERTY some TYPE SPECIAL SPECIAL NUM SPECIAL
-                            | PROPERTY some TYPE SPECIAL SPECIAL SPECIAL NUM SPECIAL
+    '''type_with_num_stt    : PROPERTY some TYPE
+                            | PROPERTY some TYPE bl SPECIAL NUM br
+                            | PROPERTY some TYPE bl NUM br
     '''
     if len(p) == 8:
-         print(f"Property '{p[1]}' with type {p[3]} {p[4]} {p[5]}{p[6]} {p[7]}")
-    else: print(f"Property '{p[1]}' with type {p[3]} {p[4]} {p[5]}{p[6]}{p[7]} {p[8]}")
+        class_modifiers.append(f"Property '{p[1]}' with type {p[3]} {p[4]}{p[5]} {p[6]}{p[7]} [Data Property]")
+    elif len(p) == 6:
+        class_modifiers.append(f"Property '{p[1]}' with type {p[3]} {p[4]}{p[6]}{p[7]} [Data Property]")
+    else: 
+        class_modifiers.append(f"Property '{p[1]}' with type {p[3]} [Data Property]")
+        if p[3] == 'xsd:integer':
+            warnings.append("if a integer range is not provided, it will be assumed as (+-)infinit")
+
 def p_subclass_properties(p):
     '''subclass_properties  : PROPERTY some ID
-                            | PROPERTY some TYPE
+                            | type_with_num_stt
+                            | type_with_num_stt SPECIAL subclass_properties
                             | PROPERTY some ID SPECIAL subclass_properties
-                            | PROPERTY some TYPE SPECIAL subclass_properties
                             | PROPERTY only subclass_properties_wrapped
                             | ID and SPECIAL expression SPECIAL
                             | ID SPECIAL closure_axiom
                             | ID
                             '''
-    if len(closure_axiom_tuple) != 0:
-        print(f"These IDs arent declared as properties in the closure axiom: {closure_axiom_tuple}")
-        raise SyntaxError
-    print("Class with closure axiom successfuly defined")
+    if 'flag' in closure_axiom_tuple:
+        if len(closure_axiom_tuple) > 1:
+            errors.append(f"These IDs arent declared as properties in the closure axiom: {closure_axiom_tuple}")
+        else :
+            class_modifiers.append("Class with closure axiom successfuly defined")
     
 def p_closure_axiom(p):
     '''closure_axiom    : PROPERTY some ID SPECIAL closure_axiom
                         | PROPERTY some ID SPECIAL
                         | PROPERTY only SPECIAL closure_axiom_check SPECIAL
     '''
-    if p[3] != '(':
+    if p[2] == 'only':
+        closure_axiom_tuple.append('flag')
+    else:
+        class_modifiers.append(f"{p[1]} is a Object Property with id: {p[3]}")
+    if p[3] != '(' and 'flag' in closure_axiom_tuple:
         if p[3] in closure_axiom_tuple:
             closure_axiom_tuple.remove(p[3])
         else: 
-            print(f"ID: {p[3]} not declared as the property, but declared in the closure")
-            raise SyntaxError
+            errors.append(f"ID: {p[3]} not declared as the property, but declared in the closure")
+            
 
 def p_closure_axiom_check(p):
     '''closure_axiom_check  : ID 
@@ -129,10 +197,13 @@ def p_subclass_properties_wrapped(p):
     '''subclass_properties_wrapped  : SPECIAL mult_or_id SPECIAL'''
 
 def p_cardinal_expression(p):
-    '''cardinal_expression  : PROPERTY min NUM TYPE
+    '''cardinal_expression  : PROPERTY min NUM ID
+                            | PROPERTY max NUM ID
                             | PROPERTY max NUM TYPE
+                            | PROPERTY min NUM TYPE
+                            | PROPERTY exactly NUM ID
                             | PROPERTY exactly NUM TYPE
-                            | PROPERTY min NUM ID'''
+    '''
 
 def p_mult_or_id(p):
     '''mult_or_id   : ID or mult_or_id
@@ -141,35 +212,37 @@ def p_mult_or_id(p):
 
 def p_mult_and_equi(p):
     '''mult_and_equi    : and SPECIAL PROPERTY some ID SPECIAL mult_and_equi
-                        | and SPECIAL PROPERTY some TYPE SPECIAL mult_and_equi
-                        | and SPECIAL PROPERTY some TYPE SPECIAL
+                        | and SPECIAL type_with_num_stt SPECIAL mult_and_equi
+                        | and SPECIAL type_with_num_stt SPECIAL
                         | and SPECIAL PROPERTY some ID SPECIAL
     '''
 
 def p_equivalent_properties(p):
     '''equivalent_properties    : enumerated_class
                                 | covered_class
-                                | ID and SPECIAL equi_excludent_props SPECIAL
                                 | ID mult_and_equi
                                 | ID and SPECIAL expression SPECIAL
     '''
 
+# def p_mult_properties(p):
+#     '''mult_properties  : and SPECIAL expression SPECIAL mult_properties
+#                         | and SPECIAL expression SPECIAL
+#     '''
+
 def p_enumerated_class(p):
     '''enumerated_class : equivalent_list'''
-    print("Enumerated class defined")
+    class_type.insert(0,"and enumerated")
 
 def p_covered_class(p):
     '''covered_class    : mult_or_id'''
-    print("Covered class defined")
-
-def p_equi_excludent_props(p):
-    '''equi_excludent_props : PROPERTY only SPECIAL mult_or_id SPECIAL'''
+    class_type.insert(0,"and covered")
 
 def p_equivalent_list(p):
     '''equivalent_list  : cl equivalent_list cr
                         | INDIVIDUAL SPECIAL equivalent_list
                         | INDIVIDUAL
     '''
+
 def p_id_list(p):
     '''id_list : ID
                | ID SPECIAL id_list'''

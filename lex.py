@@ -14,6 +14,8 @@ reserved = {
   'ONLY': 'only',
   'CL': 'cl',
   'CR': 'cr',
+  'BL': 'bl',
+  'BR': 'br',
   'Class:': 'CLASS',
   'EquivalentTo:': 'EQUIVALENTO',
   'SubClassOf:': 'SUBCLASSOF',
@@ -61,7 +63,12 @@ def t_NUM(t):
   return t
 
 def t_SPECIAL(t):
-    r'\[|\]|\{|\}|\(|\)|>|<|,|='
+    r'\[|\]|\{|\}|\(|\)|>|<|,'
+
+    if t.value == '[':
+      t.type = reserved['BL']
+    if t.value == ']':
+      t.type = reserved['BR']
     if t.value == '{':
       t.type = reserved['CL']
     if t.value == '}':
