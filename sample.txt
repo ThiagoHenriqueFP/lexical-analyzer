@@ -92,6 +92,7 @@ AmericanaHotPizza, AmericanaPizza, SohoPizza
 Individuals:
 MargheritaPizza1,
 MargheritaPizza2
+
 Class: SohoPizza
 SubClassOf:
 NamedPizza,

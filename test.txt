@@ -1,3 +1,30 @@
+# precedencia de operadores
+
+Class: Pizza
+DisjointClasses:
+Pizza, PizzaBase, PizzaTopping
+SubClassOf:
+hasBase some PizzaBase,
+hasCaloricContent some xsd:integer
+Individuals:
+CustomPizza1,
+CustomPizza2
+
+Class: PizzaTopping
+DisjointClasses:
+Pizza, PizzaBase, PizzaTopping
+
+Class: Spiciness
+EquivalentTo:
+{Hot1 , Medium1 , Mild1}
+
+Class: InvalidSubclass
+Individuals: 
+Pizza1,
+Pizza2
+
+# axioma de fechamento
+
 Class: SohoPizza
 SubClassOf:
 NamedPizza,
@@ -12,6 +39,34 @@ AmericanaHotPizza, AmericanaPizza, MargheritaPizza
 Individuals:
 SohoPizza1,
 SohoPizza2
+
+Class: MargheritaPizza
+SubClassOf:
+NamedPizza,
+hasTopping some MozzarellaTopping,
+hasTopping some TomatoTopping,
+hasTopping only
+(MozzarellaTopping or TomatoTopping)
+DisjointClasses:
+AmericanaHotPizza, AmericanaPizza, SohoPizza
+Individuals:
+MargheritaPizza1,
+MargheritaPizza2
+
+Class: MargheritaPizza
+SubClassOf:
+NamedPizza,
+hasTopping some MozzarellaTopping,
+hasTopping some TomatoTopping,
+hasTopping only
+(MozzarellaTopping)
+DisjointClasses:
+AmericanaHotPizza, AmericanaPizza, SohoPizza
+Individuals:
+MargheritaPizza1,
+MargheritaPizza2
+
+# classe correta
 
 Class: Customer
 EquivalentTo:
@@ -39,32 +94,8 @@ Manager1,
 Waiter1,
 Waiter2
 
-Class: MargheritaPizza
-SubClassOf:
-NamedPizza,
-hasTopping some MozzarellaTopping,
-hasTopping some TomatoTopping,
-hasTopping only
-(MozzarellaTopping or TomatoTopping)
-DisjointClasses:
-AmericanaHotPizza, AmericanaPizza, SohoPizza
-Individuals:
-MargheritaPizza1,
-MargheritaPizza2
-
-Class: PizzaTopping
-DisjointClasses:
-Pizza, PizzaBase, PizzaTopping
-
-Class: Spiciness
-EquivalentTo:
-{Hot1 , Medium1 , Mild1}
-
-Class: InvalidSubclass
-Individuals: 
-Pizza1,
-Pizza2
-
+# coercao - Data property and Object property
+# sobrecarregamento
 Class: Pizza
 SubClassOf:
 hasBase some PizzaBase,
@@ -75,9 +106,9 @@ Individuals:
 CustomPizza1,
 CustomPizza2
 
-Class: NoPizza
-
 Class: HighCaloriePizza
 EquivalentTo:
 Pizza
 and (hasCaloricContent some xsd:integer [>= 400])
+
+Class: NoPizza

@@ -84,6 +84,14 @@ def p_out_of_order(p):
                     | subclassof_clause equivalento_clause disjoint_clause
                     | subclassof_clause equivalento_clause disjoint_clause individuals_clause
                     | subclassof_clause equivalento_clause individuals_clause
+                    | disjoint_clause equivalento_clause 
+                    | disjoint_clause subclassof_clause
+                    | disjoint_clause subclassof_clause equivalento_clause
+                    | disjoint_clause equivalento_clause subclassof_clause
+                    | disjoint_clause subclassof_clause individuals_clause
+                    | disjoint_clause equivalento_clause individuals_clause
+                    | disjoint_clause subclassof_clause equivalento_clause individuals_clause
+                    | disjoint_clause equivalento_clause subclassof_clause individuals_clause
     '''
     errors.append(f" lin [{p.lineno(0)}]: Class defined out of the order")
 
@@ -194,7 +202,7 @@ def p_closure_axiom(p):
         if p[3] in closure_axiom_tuple:
             closure_axiom_tuple.remove(p[3])
         else: 
-            errors.append(f"ID: {p[3]} not declared as the property, but declared in the closure")
+            errors.append(f"ID: {p[3]} not declared  in the closure property, but declared as property")
             
 
 def p_closure_axiom_check(p):
