@@ -63,7 +63,7 @@ def t_NUM(t):
   return t
 
 def t_SPECIAL(t):
-    r'\[|\]|\{|\}|\(|\)|>|<|,'
+    r'>=|<=|\[|\]|\{|\}|\(|\)|>|<|,'
 
     if t.value == '[':
       t.type = reserved['BL']

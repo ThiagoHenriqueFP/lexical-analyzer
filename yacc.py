@@ -51,9 +51,12 @@ def p_class_body(p):
     '''class_body   : primitive_class
                     | defined_class
                     | error_classes
-                    | empty
+                    | empty_class
     '''
 
+def p_empty_class(p):
+    '''empty_class  : empty'''
+    errors.append(f" lin [{p.lineno(0)}]: cannot instance a class without a body")
 def p_error_classes(p):
     '''error_classes    : only_disjoint
                         | only_individuals
@@ -66,15 +69,15 @@ def p_missing_directives(p):
                             | equivalent_properties
     '''
 
-    errors.append("cannot instance a class without SubClassOf or EquivalentTo directives")
+    errors.append(f" lin [{p.lineno(0)}]: cannot instance a class without SubClassOf or EquivalentTo directives")
 
 def p_only_disjoint(p):
     '''only_disjoint    : disjoint_clause'''
-    errors.append("A class cannot be declared only with a disjoint clause")
+    errors.append(f" lin [{p.lineno(0)}]: A class cannot be declared only with a disjoint clause")
 
 def p_only_individuals(p):
     '''only_individuals : individuals_clause'''
-    errors.append("A class cannot be declared only with a individuals list")
+    errors.append(f" lin [{p.lineno(0)}]: A class cannot be declared only with a individuals list")
 
 def p_out_of_order(p):
     '''out_of_order : subclassof_clause equivalento_clause
@@ -82,7 +85,7 @@ def p_out_of_order(p):
                     | subclassof_clause equivalento_clause disjoint_clause individuals_clause
                     | subclassof_clause equivalento_clause individuals_clause
     '''
-    errors.append("Class defined out of the order")
+    errors.append(f" lin [{p.lineno(0)}]: Class defined out of the order")
 
 def p_subclassof_clause(p):
     'subclassof_clause : SUBCLASSOF subclass_properties'
@@ -147,6 +150,8 @@ def p_type_with_num_stt(p):
     '''
     if len(p) == 8:
         class_modifiers.append(f"Property '{p[1]}' with type {p[3]} {p[4]}{p[5]} {p[6]}{p[7]} [Data Property]")
+        if p[3] != 'xsd:integer':
+            errors.append(f" lin [{p.lineno(0)}]: Only can define a range value from 'xsd:integer' type")
     elif len(p) == 6:
         class_modifiers.append(f"Property '{p[1]}' with type {p[3]} {p[4]}{p[6]}{p[7]} [Data Property]")
     else: 
@@ -162,6 +167,7 @@ def p_subclass_properties(p):
                             | PROPERTY only subclass_properties_wrapped
                             | ID and SPECIAL expression SPECIAL
                             | ID SPECIAL closure_axiom
+                            | closure_axiom_unordered
                             | ID
                             '''
     if 'flag' in closure_axiom_tuple:
@@ -169,7 +175,12 @@ def p_subclass_properties(p):
             errors.append(f"These IDs arent declared as properties in the closure axiom: {closure_axiom_tuple}")
         else :
             class_modifiers.append("Class with closure axiom successfuly defined")
-    
+
+def p_closure_axiom_unordered(p):
+    '''closure_axiom_unordered  : ID SPECIAL PROPERTY only SPECIAL closure_axiom_check SPECIAL closure_axiom
+                                | ID SPECIAL PROPERTY only SPECIAL closure_axiom_check SPECIAL 
+    '''
+    errors.append(f"lin [{p.lineno(0)}] The statement 'only' cannot be declared first or alone")
 def p_closure_axiom(p):
     '''closure_axiom    : PROPERTY some ID SPECIAL closure_axiom
                         | PROPERTY some ID SPECIAL

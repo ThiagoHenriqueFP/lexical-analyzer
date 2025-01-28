@@ -95,12 +95,12 @@ MargheritaPizza2
 Class: SohoPizza
 SubClassOf:
 NamedPizza,
+hasTopping only
+(MozzarellaTopping or OliveTopping or ParmesanTopping or TomatoTopping)
 hasTopping some MozzarellaTopping,
 hasTopping some OliveTopping,
 hasTopping some ParmesanTopping,
 hasTopping some TomatoTopping,
-hasTopping only
-(MozzarellaTopping or OliveTopping or ParmesanTopping or TomatoTopping)
 DisjointClasses:
 AmericanaHotPizza, AmericanaPizza, MargheritaPizza
 Individuals:
