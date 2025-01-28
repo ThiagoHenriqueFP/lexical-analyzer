@@ -53,7 +53,7 @@ Individuals:
 MargheritaPizza1,
 MargheritaPizza2
 
-Class: MargheritaPizza
+Class: MargheritaPizzaIn
 SubClassOf:
 NamedPizza,
 hasTopping some MozzarellaTopping,
@@ -95,7 +95,7 @@ Waiter1,
 Waiter2
 
 # coercao - Data property and Object property
-# sobrecarregamento
+
 Class: Pizza
 SubClassOf:
 hasBase some PizzaBase,
@@ -110,5 +110,11 @@ Class: HighCaloriePizza
 EquivalentTo:
 Pizza
 and (hasCaloricContent some xsd:integer [>= 400])
+
+Class: HighCaloriePizza
+EquivalentTo:
+Pizza
+and (hasCaloricContent some xsd:string [>= 400])
+
 
 Class: NoPizza
