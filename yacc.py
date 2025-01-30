@@ -16,7 +16,7 @@ def clear():
     closure_axiom_tuple.clear()
 
 def print_class(current):
-    is_success = "was successfuly analysed" if len(errors) == 0 else "has errors encoutntered after analyse"
+    is_success = "was successfuly analysed" if len(errors) == 0 else "has encountered errors after analyse"
     class_type_str = ''
     for ct in class_type:
         class_type_str += f"{ct} "
@@ -26,12 +26,12 @@ def print_class(current):
     if len(errors) > 0:
         print("ERRORS")
         for e in errors:
-            print('\033[91m'+"X ", e)
+            print('\033[91m'+"X ", e, '\033[0m',)
 
     if len(warnings) > 0:
         print("WARNINGS")
         for e in warnings:
-            print('\033[93m',"! ", e)
+            print('\033[93m',"! ", e, '\033[0m',)
     print('\033[0m', '----------------------\n')
     clear()
 
@@ -277,7 +277,7 @@ def p_empty(p):
 
 def p_error(p):
     if p:
-        print(f"Erro de sintaxe na linha: {p.lineno}: {p.value}")
+        print(f"Erro de sintaxe na linha: {p.lineno}; lexema {p.value} inesperado")
     else:
         print("Erro de sintaxe: EOF inesperado")
 
